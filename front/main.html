@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pokemon Ditto</title>
+</head>
+<body>
+    <h1>Información de Pokémon</h1>
+
+    <!-- Barra de búsqueda -->
+    <input type="text" id="pokemonNameInput" placeholder="Nombre del Pokémon">
+    <button id="searchButton">Buscar</button>
+
+    <div id="pokemonData">
+        <!-- Aquí se mostrará la información del Pokémon -->
+    </div>
+
+    <script>
+        // Función para realizar la solicitud a la API y mostrar la información
+        async function fetchPokemonData(pokemonName) {
+            const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+            const data = await response.json();
+            const pokemonData = document.getElementById("pokemonData");
+
+            if (response.status === 404) {
+                pokemonData.innerHTML = "<p>Pokémon no encontrado.</p>";
+            } else {
+                // Muestra la información del Pokémon
+                pokemonData.innerHTML = `
+                    <p><strong>Nombre:</strong> ${data.name}</p>
+                    <p><strong>ID:</strong> ${data.id}</p>
+                    <p><strong>Altura:</strong> ${data.height} decímetros</p>
+                    <p><strong>Peso:</strong> ${data.weight} hectogramos</p>
+                    <p><strong>Tipo(s):</strong> ${data.types.map(type => type.type.name).join(", ")}</p>
+                    <p><strong>Habilidades:</strong> ${data.abilities.map(ability => ability.ability.name).join(", ")}</p>
+                    <img src="${data.sprites.front_default}" alt="${data.name}">
+                `;
+            }
+        }
+
+        // Event listener para el botón de búsqueda
+        document.getElementById("searchButton").addEventListener("click", function() {
+            const pokemonName = document.getElementById("pokemonNameInput").value.toLowerCase();
+            fetchPokemonData(pokemonName);
+        });
+    </script>
+</body>
+</html>
