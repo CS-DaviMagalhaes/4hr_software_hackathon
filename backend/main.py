@@ -8,10 +8,7 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 #mount frontend
 # Serve static files (HTML)
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
-# Configure Jinja2 templates
-templates = Jinja2Templates(directory="frontend")
 
 #apis
 @app.get("/")
@@ -40,7 +37,6 @@ async def get_pokemon(name: str):
             }
         else:
             return {"error": "Pokemon not found"}
-    return templates.TemplateResponse("index.html", {"request": request, "name": name})
 
 
 @app.get("/pokemon/{number}")
