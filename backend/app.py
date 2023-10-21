@@ -1,36 +1,31 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
-from flaskext.mysql import MySQL
-from flask_restful import Resource, Api
+import psycopg2
+import json
 
-app = Flask(__name__)
+db_config = {
+    'dbname': 'Pokemon',
+    'user': 'postgres',
+    'password': 'coconut',
+    'host': 'localhost',
+    'port': 5432
+}
 
-CORS(app)
+connection = psycopg2.connect(**db_config)
+cursor = connection.cursor()
 
-mysql = MySQL()
+with open(r'C:\Users\HP\Desktop\UTEC\Ciclo_VI\Ingenieria_de_software\Hackaton\backend\pokemon_data.json') as pokemon_file:
+    data = json.load(pokemon_file)
+    cursor.execute("CREATE TABLE if not exists pokemon (name VARCHAR(255), height INTEGER, weight INTEGER, types TEXT[], abilities TEXT[]);")
 
-api = Api(app)
+for entry in data:
+    name = entry['name']
+    height = entry['height']
+    weight = entry['weight']
+    types = entry['types']
+    abilities = entry['abilities']
 
-mysql.init_app(app)
+    # Inserta la fila en la base de datos
+    cursor.execute("INSERT INTO pokemon (name, height, weight, types, abilities) VALUES (%s, %s, %s, %s, %s)", (name, height, weight, types, abilities))
+connection.commit()
 
-class CommentList(Resource):
-    def get(self):
-        try:
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            cursor.execute("""select * from comment""")
-            rows = cursor.fetchall()
-            return jsonify(rows)
-        except Exception as e:
-            print(e)
-        finally:
-            cursor.close()
-            conn.close()
-
-
-#API resource routes
-#api.add_resource(CommentList, '/comments', endpoint='comments')
-api.add_resource('pokeapi.co/api/v2/pokemon/ditto')
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8003, debug=False)
+cursor.close()
+connection.close()
