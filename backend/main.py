@@ -5,6 +5,7 @@ import json
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import db_init
+import psycopg2
 
 app = FastAPI()
 #mount frontend
@@ -57,12 +58,16 @@ async def get_pokemon(number: int):
             #Obtener solamente los nombres de las habilidades
             ability_names = [ability["ability"]["name"] for ability in pokemon_data["abilities"]]
             types = [type["type"]["name"] for type in pokemon_data["types"]]
+            held_items = [item["item"]["name"] for item in pokemon_data["held_items"]]
             return {
+                "id": number,
                 "name": pokemon_data["name"],
                 "height": pokemon_data["height"],
                 "weight": pokemon_data["weight"],
                 "types": types,
                 "abilities": ability_names,
+                "sprite": pokemon_data["sprites"]["front_default"],
+                "held_items": held_items,
             }
         else:
             return {"error": "Pokemon not found"}
@@ -95,3 +100,4 @@ if __name__ == "__main__":
     
     loop.run_until_complete(fetch_all_pokemon_data())
     loop.run_until_complete(db_init.uploadToDb())
+
