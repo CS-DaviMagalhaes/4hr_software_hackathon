@@ -4,6 +4,7 @@ import pandas as pd
 import json
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import db_init
 
 app = FastAPI()
 #mount frontend
@@ -88,9 +89,9 @@ async def fetch_all_pokemon_data():
 if __name__ == "__main__":
     import uvicorn
 
-    # Create an event loop and run the asynchronous function
     import asyncio
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
     loop.run_until_complete(fetch_all_pokemon_data())
+    loop.run_until_complete(db_init.uploadToDb())
